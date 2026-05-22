@@ -37,3 +37,5 @@ func Disconnect(client *mongo.Client) error {
 	defer cancel()
 	return client.Disconnect(ctx)
 }
+
+//Connect and Disconnect
