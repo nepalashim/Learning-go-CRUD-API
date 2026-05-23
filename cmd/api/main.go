@@ -15,7 +15,7 @@ func main() {
 	}
 
 	// Connect to the MongoDB database using the configuration settings. The Connect function is defined in the internal/db/mongo.go file and establishes a connection to the MongoDB server, returning a client and a database instance.
-	client, _, err := db.Connect(cfg)
+	client, database, err := db.Connect(cfg)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
@@ -26,7 +26,7 @@ func main() {
 		}
 	}()
 
-	router := server.NewRouter() // Create a new router using the NewRouter function defined in the internal/server/router.go file. This function sets up the HTTP routes and handlers for the API.
+	router := server.NewRouter(database) // Create a new router using the NewRouter function defined in the internal/server/router.go file. This function sets up the HTTP routes and handlers for the API.
 	addr := fmt.Sprintf(":%s", cfg.ServerPort)
 
 	if err := router.Run(addr); err != nil { // Start the HTTP server on the specified address and port. The Run method of the Gin router will block and listen for incoming HTTP requests until the server is stopped. If there is an error starting the server, it will log the error and exit the application.
