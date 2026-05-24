@@ -12,4 +12,7 @@ func RegisterRoutes(r *gin.Engine, db *mongo.Database) {
 	// /notes .post"" --> POST --> create note,  but if /notes and inside it: .post"/add"--> "/notes/add"--> POST --> create note
 	notesGroup := r.Group("/notes")
 	notesGroup.POST("", handler.CreateNote)
+	notesGroup.GET("", handler.ListNotes)
+	notesGroup.GET("/:id", handler.GetNoteByID)
+	notesGroup.PUT("/:id", handler.UpdateNoteByID)
 }

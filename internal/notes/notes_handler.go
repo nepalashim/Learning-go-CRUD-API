@@ -43,3 +43,48 @@ func (h *Handler) CreateNote(c *gin.Context) { //gin.context(everything about si
 
 	c.JSON(http.StatusCreated, created)
 }
+
+func (h *Handler) ListNotes(c *gin.Context) {
+	notes, err := h.repo.ListNotes(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error: Failed to Fetch all notes": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"notes": notes})
+}
+
+func (h *Handler) GetNoteByID(c *gin.Context) {
+	idstr := c.Param("id")
+	//convert 24 character hex string to bson object id
+	noteID, err := bson.ObjectIDFromHex(idstr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid note ID"})
+		return
+	}
+	note, err := h.repo.GetByID(c.Request.Context(), noteID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Note not found"})
+		return
+	}
+	c.JSON(http.StatusOK, note)
+}
+
+func (h *Handler) UpdateNoteByID(c *gin.Context) {
+	idstr := c.Param("id")
+	objID, err := bson.ObjectIDFromHex(idstr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid note ID"})
+		return
+	}
+	var req UpdateNoteRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		return
+	}
+	updated, err := h.repo.UpdateNote(c.Request.Context(), objID, req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, updated)
+}
