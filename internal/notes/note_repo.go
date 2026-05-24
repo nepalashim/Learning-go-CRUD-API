@@ -108,3 +108,23 @@ func (r *Repo) UpdateNote(ctx context.Context, id bson.ObjectID, update UpdateNo
 	}
 	return updated, nil
 }
+
+func (r *Repo) DeleteNote(ctx context.Context, id bson.ObjectID) (bool, error) {
+
+	opCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"_id": id}
+
+	result, err := r.coll.DeleteOne(opCtx, filter)
+
+	if err != nil {
+		return false, fmt.Errorf("failed to delete note: %w", err)
+	}
+
+	if result.DeletedCount == 0 {
+		return false, nil // Note not found
+	}
+	return true, nil // Note deleted successfully
+
+}
